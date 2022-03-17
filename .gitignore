@@ -1,0 +1,11 @@
+strace
+*.o
+*.a
+*.gc*
+~*
+*~
+\#*\#
+unit_tests
+vgcore*
+.vscode
+*.out
