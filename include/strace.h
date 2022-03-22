@@ -5,9 +5,19 @@
 ** heads
 */
 
-#ifndef STRACE_H_
-    #define STRACE_H_
+#pragma once
 
-    void strace(void);
+void strace(void);
 
-#endif /* !STRACE_H_ */
+typedef struct {
+    int number;
+    char *name;
+    int arg_count;
+    int return_type;
+    int arg1_type;
+    int arg2_type;
+    int arg3_type;
+    int arg4_type;
+    int arg5_type;
+    int arg6_type;
+} syscall_t;
