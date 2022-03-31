@@ -11,7 +11,10 @@ RM	= 	rm -rf
 
 MAIN	=	src/main.c
 
-SRC	=	src/strace.c
+SRC	=	src/fork_and_attach.c	\
+		src/display_call.c	\
+		src/strace_loop.c	\
+		src/strace_args.c
 
 OBJ	=	$(addsuffix .o, $(basename $(SRC)))
 
