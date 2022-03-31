@@ -23,7 +23,6 @@ static int wait_syscall(pid_t child, struct user_regs_struct *registers)
         if (syscall != -1)
             return (0);
         ptrace(PTRACE_GETREGS, child, NULL, registers);
-        // printf("%#x\n", ptrace(PTRACE_PEEKDATA, child, registers->rip));
         if (WIFEXITED(status))
             return (1);
     }
