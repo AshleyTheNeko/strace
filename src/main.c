@@ -17,14 +17,15 @@ static int file_exists(const char *name)
 {
     struct stat stats;
 
-    stat(name, &stats);
-    if (stats.st_mode & X_OK && !S_ISDIR(stats.st_mode))
-        return 1;
+    if (stat(name, &stats) == -1)
+        return (0);
+    if ((stats.st_mode & X_OK) && (!S_ISDIR(stats.st_mode)))
+        return (1);
     if (!(stats.st_mode & X_OK))
         errno = EACCES;
     if (S_ISDIR(stats.st_mode))
         errno = EISDIR;
-    return 0;
+    return (0);
 }
 
 static char *get_path(char *name, char *path_env_var)
@@ -32,7 +33,7 @@ static char *get_path(char *name, char *path_env_var)
     char *string;
     char *full_path;
 
-    if (!path_env_var || (file_exists(name)))
+    if (!path_env_var || file_exists(name))
         return (name);
     string = strtok(path_env_var, ":");
     while (string) {
@@ -40,7 +41,7 @@ static char *get_path(char *name, char *path_env_var)
         strcpy(full_path, string);
         strcat(full_path, "/");
         strcat(full_path, name);
-        if (access(full_path, X_OK) != -1) {
+        if (file_exists(full_path)) {
             return (full_path);
         }
         free(full_path);
