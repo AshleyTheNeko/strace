@@ -6,13 +6,13 @@
 */
 
 #include "strace.h"
-#include <errno.h>
-#include <stddef.h>
+#include <signal.h>
 #include <stdio.h>
 #include <sys/ptrace.h>
 #include <unistd.h>
+#include <wait.h>
 
-int tracer_actions(pid_t child, int attach)
+int tracer_actions(pid_t child, int attach, int display_full)
 {
     int status;
 
@@ -23,16 +23,14 @@ int tracer_actions(pid_t child, int attach)
         }
         kill(child, SIGSTOP);
     }
-    if (waitpid(child, &status, 0) == -1)
-        ptrace(PTRACE_SETOPTIONS, child, 0, PTRACE_O_TRACESYSGOOD);
-    return (main_loop(child));
+    waitpid(child, &status, 0);
+    return (main_loop(child, display_full));
 }
 
 int tracee_actions(char *filename, char **args, char **env)
 {
     ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-    kill(getpid(), SIGSTOP);
+    raise(SIGSTOP);
     execve(filename, args, env);
-    perror("strace");
     return (84);
 }

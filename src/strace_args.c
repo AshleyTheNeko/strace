@@ -13,8 +13,10 @@
 
 static int get_arg(char *arg[2], int *full_mode, pid_t *pid, int *i)
 {
-    if (!strcmp(arg[0], "-s"))
+    if (!strcmp(arg[0], "-s")) {
         *full_mode = 1;
+        return (0);
+    }
     if (!strcmp(arg[0], "-p")) {
         if (!arg[1]) {
             write(2, "strace: option requires an argument -- 'p'\n", 43);

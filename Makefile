@@ -11,10 +11,11 @@ RM	= 	rm -rf
 
 MAIN	=	src/main.c
 
-SRC	=	src/fork_and_attach.c	\
-		src/display_call.c	\
+SRC	=	src/display_arg_type.c	\
+		src/fork_and_attach.c	\
 		src/strace_loop.c	\
-		src/strace_args.c
+		src/strace_args.c	\
+		src/print_call.c
 
 OBJ	=	$(addsuffix .o, $(basename $(SRC)))
 

@@ -19,10 +19,8 @@ static int file_exists(const char *name)
 
     if (stat(name, &stats) == -1)
         return (0);
-    if ((stats.st_mode & X_OK) && (!S_ISDIR(stats.st_mode)))
+    if (S_ISREG(stats.st_mode))
         return (1);
-    if (!(stats.st_mode & X_OK))
-        errno = EACCES;
     if (S_ISDIR(stats.st_mode))
         errno = EISDIR;
     return (0);
@@ -33,22 +31,21 @@ static char *get_path(char *name, char *path_env_var)
     char *string;
     char *full_path;
 
-    if (!path_env_var || file_exists(name))
+    if (!path_env_var)
         return (name);
     string = strtok(path_env_var, ":");
     while (string) {
-        full_path = malloc(strlen(string) + strlen(name) + 1);
-        strcpy(full_path, string);
-        strcat(full_path, "/");
-        strcat(full_path, name);
-        if (file_exists(full_path)) {
+        full_path = malloc(strlen(string) + strlen(name) + 2);
+        sprintf(full_path, "%s/%s", string, name);
+        if (file_exists(full_path))
             return (full_path);
-        }
         free(full_path);
         string = strtok(NULL, ":");
     }
-    if (!file_exists(name))
-        perror("strace");
+    if (!file_exists(name)) {
+        fprintf(stderr, "strace: Can't stat '%s': ", name);
+        perror("");
+    }
     return (NULL);
 }
 
@@ -73,5 +70,5 @@ int main(int argc, char **argv, char **env)
     if (!pid) {
         return (tracee_actions(file_path, argv + return_value, env));
     } else
-        return (tracer_actions(pid, attach));
+        return (tracer_actions(pid, attach, full_mode));
 }

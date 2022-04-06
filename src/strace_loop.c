@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <sys/ptrace.h>
 #include <sys/reg.h>
+#include <wait.h>
 
 static int wait_syscall(pid_t child, struct user_regs_struct *registers)
 {
@@ -28,23 +29,25 @@ static int wait_syscall(pid_t child, struct user_regs_struct *registers)
     }
 }
 
-int main_loop(pid_t child)
+int main_loop(pid_t child, int display_full)
 {
     int syscall_number;
-    int rax_content;
+    unsigned long rax_content;
     struct user_regs_struct registers;
 
     while (1) {
         if (wait_syscall(child, &registers) != 0) {
-            display_syscall_args(child, registers.rax, &registers);
+            display_syscall_args(
+                child, registers.rax, &registers, display_full);
             fprintf(stderr, "?\n+++ exited with %lld +++\n", registers.rdi);
             break;
         }
         syscall_number =
             ptrace(PTRACE_PEEKUSER, child, sizeof(long) * ORIG_RAX);
-        display_syscall_args(child, syscall_number, &registers);
+        display_syscall_args(child, syscall_number, &registers, display_full);
         rax_content = ptrace(PTRACE_PEEKUSER, child, sizeof(long) * RAX);
-        display_syscall_return_value(syscall_number, rax_content);
+        display_syscall_return_value(
+            syscall_number, rax_content, display_full, child);
     }
     return (0);
 }
