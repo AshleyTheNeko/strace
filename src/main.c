@@ -26,13 +26,11 @@ static int file_exists(const char *name)
     return (0);
 }
 
-static char *get_path(char *name, char *path_env_var)
+static char *get_env_path(char *name, char *path_env_var)
 {
     char *string;
-    char *full_path;
 
-    if (!path_env_var)
-        return (name);
+    char *full_path;
     string = strtok(path_env_var, ":");
     while (string) {
         full_path = malloc(strlen(string) + strlen(name) + 2);
@@ -42,11 +40,22 @@ static char *get_path(char *name, char *path_env_var)
         free(full_path);
         string = strtok(NULL, ":");
     }
-    if (!file_exists(name)) {
-        fprintf(stderr, "strace: Can't stat '%s': ", name);
-        perror("");
-    }
+    fprintf(
+        stderr, "strace: Can't stat '%s': No such file or directory", name);
     return (NULL);
+}
+
+static char *get_path(char *name, char *path_env_var)
+{
+    if (!path_env_var || strcspn(name, "/") != strlen(name)) {
+        if (!file_exists(name)) {
+            fprintf(stderr, "strace: Can't stat '%s': ", name);
+            perror("");
+            return (NULL);
+        }
+        return (name);
+    }
+    return (get_env_path(name, path_env_var));
 }
 
 int main(int argc, char **argv, char **env)
